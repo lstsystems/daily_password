@@ -1,5 +1,5 @@
 # daily_password
-This is a Drupa module that can be used with Drupal ^8.8 or 9
+This is a Drupal module that can be used with Drupal ^8.8 or 9
 
 This module allows to select a username and set it up for automatic password change on a daily, weekly, montly or yearly basis. It also has a blocks that can be place on the site for an admin to see what the password is.
 
