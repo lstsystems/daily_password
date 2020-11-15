@@ -1,0 +1,72 @@
+<?php
+
+
+namespace Drupal\daily_password\Form;
+
+use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormStateInterface;
+
+class settingsForm extends ConfigFormBase {
+
+
+  /**
+   * Config settings.
+   *
+   * @var string
+   */
+  const SETTINGS = 'daily_password.settings';
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormId() {
+    return 'daily_password_settings';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getEditableConfigNames() {
+    return [
+      static::SETTINGS,
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    $config = $this->config(static::SETTINGS);
+
+    $form['password_hash'] = [
+      '#type' => 'textfield',
+      '#prefix' => '<br>',
+      '#title' => $this->t('Password Hash'),
+      '#default_value' => $config->get('password_hash'),
+      '#description' => $this->t('Enter a password hash of your choice, this will be used to encrypt the generated password in the database and it should be unique'),
+      '#required' => TRUE,
+      '#suffix' => '<br><span class="panel">Example: $2y$07$BCryptRequires22Chrcte/VlQH0piJtjXl.0t1XkA8pw9dMspO</span>',
+
+    ];
+
+
+    return parent::buildForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    // Retrieve the configuration.
+    $this->configFactory->getEditable(static::SETTINGS)
+      // Set the submitted configuration setting.
+      ->set('password_hash', $form_state->getValue('password_hash'))
+      // You can set multiple configurations at once by making
+      // multiple calls to set().
+      //->set('other_things', $form_state->getValue('other_things'))
+      ->save();
+
+    parent::submitForm($form, $form_state);
+  }
+
+}
