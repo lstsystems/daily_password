@@ -82,7 +82,6 @@ class formTableController extends ControllerBase {
       $rows[] = $row;
 
 
-
     }
 
     $content['table'] = [
