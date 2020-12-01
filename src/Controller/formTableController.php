@@ -6,7 +6,6 @@ use Drupal\daily_password\dailyPasswordRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Url;
 
-use Drupal\Core\Site;
 
 
 class formTableController extends ControllerBase {
@@ -45,11 +44,7 @@ class formTableController extends ControllerBase {
    */
   public function formTableContent() {
     $content = [];
-
-    /*$content['message'] = [
-      '#markup' => $this->t('Generate a list of all entries in the database. There is no filter in the query.'),
-    ];*/
-
+    
     $rows = [];
     $headers = [
       $this->t('Usernames'),
