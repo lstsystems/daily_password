@@ -7,6 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\daily_password\dailyPasswordRepository;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Site\Settings;
 
 /**
  * Provides a 'DailyPasswordBlock' block.
@@ -20,10 +21,12 @@ class DailyPasswordBlock extends BlockBase implements ContainerFactoryPluginInte
 
   protected $repository;
 
-   public function __construct(array $configuration, $plugin_id, $plugin_definition, dailyPasswordRepository $repository) {
+  protected $settings;
+
+   public function __construct(array $configuration, $plugin_id, $plugin_definition, dailyPasswordRepository $repository,Settings $settings) {
      parent::__construct($configuration, $plugin_id, $plugin_definition);
      $this->repository = $repository;
-
+     $this->settings = $settings;
    }
 
   /**
@@ -34,15 +37,15 @@ class DailyPasswordBlock extends BlockBase implements ContainerFactoryPluginInte
    *
    * @return \Drupal\Core\Plugin\ContainerFactoryPluginInterface|\Drupal\daily_password\Plugin\Block\DailyPasswordBlock
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(ContainerInterface $container,array $configuration, $plugin_id, $plugin_definition) {
     return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('daily_password.repository')
+      $container->get('daily_password.repository'),
+      $container->get('settings')
     );
   }
-
 
 
 
@@ -85,8 +88,6 @@ class DailyPasswordBlock extends BlockBase implements ContainerFactoryPluginInte
     return $form;
 
 
-
-
   }
 
   /**
@@ -110,8 +111,10 @@ class DailyPasswordBlock extends BlockBase implements ContainerFactoryPluginInte
 
 
     // Get hash from setting.php
-    $hash =  \Drupal\Core\Site\Settings::getHashSalt();
+    $hash = $this->settings->getHashSalt();
+    //$hash =  \Drupal\Core\Site\Settings::getHashSalt();
 
+    // decrypt the password before passing it to the block
     $deccryptPassword = openssl_decrypt($entries->password,"AES-256-ECB",$hash);
 
     return [
