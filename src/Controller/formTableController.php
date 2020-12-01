@@ -44,7 +44,7 @@ class formTableController extends ControllerBase {
    */
   public function formTableContent() {
     $content = [];
-    
+
     $rows = [];
     $headers = [
       $this->t('Usernames'),
