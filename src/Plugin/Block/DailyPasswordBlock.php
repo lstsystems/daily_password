@@ -4,7 +4,9 @@ namespace Drupal\daily_password\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Form\FormStateInterface;
-
+use Drupal\daily_password\dailyPasswordRepository;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a 'DailyPasswordBlock' block.
@@ -14,7 +16,33 @@ use Drupal\Core\Form\FormStateInterface;
  *  admin_label = @Translation("Daily Password"),
  * )
  */
-class DailyPasswordBlock extends BlockBase {
+class DailyPasswordBlock extends BlockBase implements ContainerFactoryPluginInterface {
+
+  protected $repository;
+
+   public function __construct(array $configuration, $plugin_id, $plugin_definition, dailyPasswordRepository $repository) {
+     parent::__construct($configuration, $plugin_id, $plugin_definition);
+     $this->repository = $repository;
+
+   }
+
+  /**
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   * @param array $configuration
+   * @param string $plugin_id
+   * @param mixed $plugin_definition
+   *
+   * @return \Drupal\Core\Plugin\ContainerFactoryPluginInterface|\Drupal\daily_password\Plugin\Block\DailyPasswordBlock
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('daily_password.repository')
+    );
+  }
+
 
 
 
@@ -33,20 +61,19 @@ class DailyPasswordBlock extends BlockBase {
    */
   public function blockForm($form, FormStateInterface $form_state) {
 
+
     //setup empty array
     $options = array();
 
     //get deta from database
-    $query = \Drupal::database()->select('daily_password', 'n');
-    $query->fields('n', ['pid', 'usernames', 'frequency']);
-    $results = $query->execute()->fetchAll();
+    $entries = $this->repository->load();
 
     //push date as a key value pair to the new array
-    foreach ($results as $entry) {
+    foreach ($entries as $entry) {
       $options[$entry->pid]=$entry->usernames;
     }
 
-
+    //Setup form
     $form['select_password_to_display'] = [
       '#type' => 'radios',
       '#title' => $this->t('Select password to display'),
@@ -56,6 +83,10 @@ class DailyPasswordBlock extends BlockBase {
     ];
 
     return $form;
+
+
+
+
   }
 
   /**
@@ -70,24 +101,20 @@ class DailyPasswordBlock extends BlockBase {
    */
   public function build() {
 
-    $pid =  $this->configuration['select_password_to_display'];
 
+    // setup pid condition
+    $pid =  ['pid' => $this->configuration['select_password_to_display']];
 
+    // load by pid and rest array to an object
+    $entries = reset($this->repository->load($pid));
 
-    $query = \Drupal::database()->select('daily_password', 'n');
-    $query->condition('pid', $pid);
-    $query->fields('n', ['password']);
-    $results = $query->execute()->fetch();
-
-    //$hash = \Drupal::config('daily_password.settings')->get('password_hash');
 
     // Get hash from setting.php
     $hash =  \Drupal\Core\Site\Settings::getHashSalt();
 
-    $deccryptPassword = openssl_decrypt($results->password,"AES-256-ECB",$hash);
+    $deccryptPassword = openssl_decrypt($entries->password,"AES-256-ECB",$hash);
 
     return [
-      //'#theme' => 'daily_password_block',
       '#markup' => $deccryptPassword,
     ];
 
