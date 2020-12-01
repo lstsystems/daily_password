@@ -197,15 +197,5 @@ class dailyPasswordRepository {
     return $select->execute()->fetchAll();
   }
 
-  /*public function loadUsers(array $entry = []) {
-    // Read all the fields from the daily_password table.
-    $select = $this->connection
-      ->select('daily_password')
-      // Add all the fields into our select query.
-      ->fields('daily_password', array('usernames'));
-
-    // Return the result in object format.
-    return $select->execute()->fetchAll();
-  }*/
 
 }
