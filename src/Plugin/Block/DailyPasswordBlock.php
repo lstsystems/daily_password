@@ -107,7 +107,8 @@ class DailyPasswordBlock extends BlockBase implements ContainerFactoryPluginInte
     $pid =  ['pid' => $this->configuration['select_password_to_display']];
 
     // load by pid and rest array to an object
-    $entries = reset($this->repository->load($pid));
+    $entries = $this->repository->load($pid);
+    $entries = reset($entries);
 
 
     // Get hash from setting.php
