@@ -18,22 +18,23 @@ class deleteForm extends FormBase {
   use MessengerTrait;
 
   /**
-   * The current user.
-   *
-   * We'll need this service in order to check if the user is logged in.
-   *
-   * @var \Drupal\Core\Session\AccountProxyInterface
+   * @var AccountProxyInterface
    */
-  protected $currentUser;
+  protected AccountProxyInterface $currentUser;
 
 
   /**
-   * {@inheritdoc}
-   *
-   * We'll use the ContainerInjectionInterface pattern here to inject the
-   * current user and also get the string_translation service.
+   * @var dailyPasswordRepository
    */
-  public static function create(ContainerInterface $container) {
+  private dailyPasswordRepository $repository;
+
+  /**
+   *
+   * @param ContainerInterface $container
+   * @return deleteForm|static
+   */
+  public static function create(ContainerInterface $container): deleteForm|static
+  {
     $form = new static(
       $container->get('daily_password.repository'),
       $container->get('current_user')
@@ -46,9 +47,9 @@ class deleteForm extends FormBase {
   }
 
 
-
   /**
-   * Construct the new form object.
+   * @param dailyPasswordRepository $repository
+   * @param AccountProxyInterface $current_user
    */
   public function __construct(dailyPasswordRepository $repository, AccountProxyInterface $current_user) {
     $this->repository = $repository;
@@ -56,14 +57,23 @@ class deleteForm extends FormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * @return string
    */
-  public function getFormId() {
+  public function getFormId(): string
+  {
     return 'delete_form';
   }
 
-  //need to add correct form build
-  public function buildForm(array $form, FormStateInterface $form_state, $delete = NULL) {
+
+  /**
+   *
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @param null $delete
+   * @return array
+   */
+  public function buildForm(array $form, FormStateInterface $form_state, $delete = NULL): array
+  {
 
     $form['message'] = [
       '#markup' => $this->t('This action cannot be undone.'),
@@ -93,13 +103,12 @@ class deleteForm extends FormBase {
 
     return $form;
   }
+
   /**
-   * {@inheritdoc}
+   * @param array $form
+   * @param FormStateInterface $form_state
    */
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
     // Verify that the user is logged-in.
     if ($this->currentUser->isAnonymous()) {
       $form_state->setError($form['edit'], $this->t('You must be logged in to add values to the database.'));
@@ -107,9 +116,10 @@ class deleteForm extends FormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * @param array $form
+   * @param FormStateInterface $form_state
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
 
 
     // Gather the current user so the new record has ownership.

@@ -16,22 +16,21 @@ class editForm extends FormBase {
   use MessengerTrait;
 
   /**
-   * The current user.
-   *
-   * We'll need this service in order to check if the user is logged in.
-   *
-   * @var \Drupal\Core\Session\AccountProxyInterface
+   * @var AccountProxyInterface
    */
-  protected $currentUser;
+  protected AccountProxyInterface $currentUser;
+  /**
+   * @var dailyPasswordRepository
+   */
+  private dailyPasswordRepository $repository;
 
 
   /**
-   * {@inheritdoc}
-   *
-   * We'll use the ContainerInjectionInterface pattern here to inject the
-   * current user and also get the string_translation service.
+   * @param ContainerInterface $container
+   * @return editForm|static
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): editForm|static
+  {
     $form = new static(
       $container->get('daily_password.repository'),
       $container->get('current_user')
@@ -54,18 +53,22 @@ class editForm extends FormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * @return string
    */
-  public function getFormId() {
+  public function getFormId(): string
+  {
     return 'edit_form';
   }
 
 
-
   /**
-   * {@inheritdoc}
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @param null $edit
+   * @return array
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $edit = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, $edit = NULL): array
+  {
 
     // Query for items to display.
     foreach ($entries = $this->repository->load() as $entry) {
@@ -127,10 +130,12 @@ class editForm extends FormBase {
 
     return $form;
   }
+
   /**
-   * {@inheritdoc}
+   * @param array $form
+   * @param FormStateInterface $form_state
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
     // Verify that the user is logged-in.
     if ($this->currentUser->isAnonymous()) {
       $form_state->setError($form['edit'], $this->t('You must be logged in to add values to the database.'));
@@ -147,9 +152,10 @@ class editForm extends FormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * @param array $form
+   * @param FormStateInterface $form_state
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
 
 
     // Gather the current user so the new record has ownership.

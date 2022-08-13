@@ -16,20 +16,18 @@ class addForm implements FormInterface, ContainerInjectionInterface {
   use MessengerTrait;
 
   /**
-   * Our database repository service.
-   *
-   * @var \Drupal\daily_password\dailyPasswordRepository
+   * Database repository
+   * @var dailyPasswordRepository
    */
-  protected $repository;
+  protected dailyPasswordRepository $repository;
+
 
   /**
    * The current user.
-   *
    * We'll need this service in order to check if the user is logged in.
-   *
-   * @var \Drupal\Core\Session\AccountProxyInterface
+   * @var AccountProxyInterface
    */
-  protected $currentUser;
+  protected AccountProxyInterface $currentUser;
 
   /**
    * {@inheritdoc}
@@ -37,7 +35,8 @@ class addForm implements FormInterface, ContainerInjectionInterface {
    * We'll use the ContainerInjectionInterface pattern here to inject the
    * current user and also get the string_translation service.
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): static
+  {
     $form = new static(
       $container->get('daily_password.repository'),
       $container->get('current_user')
@@ -51,7 +50,9 @@ class addForm implements FormInterface, ContainerInjectionInterface {
 
 
   /**
-   * Construct the new form object.
+   * Constructor
+   * @param dailyPasswordRepository $repository
+   * @param AccountProxyInterface $current_user
    */
   public function __construct(dailyPasswordRepository $repository, AccountProxyInterface $current_user) {
     $this->repository = $repository;
@@ -59,17 +60,24 @@ class addForm implements FormInterface, ContainerInjectionInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * form id
+   * @return string
    */
-  public function getFormId() {
+  public function getFormId(): string
+  {
     return 'add_form';
   }
 
 
+
   /**
-   * {@inheritdoc}
+   * Create form
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @return array
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state): array
+  {
     $form = [];
 
     $form['message'] = [
@@ -108,9 +116,11 @@ class addForm implements FormInterface, ContainerInjectionInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Form validation
+   * @param array $form
+   * @param FormStateInterface $form_state
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
     // Verify that the user is logged-in.
     if ($this->currentUser->isAnonymous()) {
       $form_state->setError($form['add'], $this->t('You must be logged in to add values to the database.'));
@@ -127,9 +137,12 @@ class addForm implements FormInterface, ContainerInjectionInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Submit the form
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @throws \Exception
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     // Gather the current user so the new record has ownership.
     $account = $this->currentUser;
     // Save the submitted entry.

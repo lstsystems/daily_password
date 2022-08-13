@@ -2,6 +2,7 @@
 namespace Drupal\daily_password\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\daily_password\dailyPasswordRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Url;
@@ -10,17 +11,20 @@ use Drupal\Core\Url;
 
 class formTableController extends ControllerBase {
 
+
   /**
    * The repository for our specialized queries.
-   *
-   * @var \Drupal\dbtng_example\DbtngExampleRepository
+   * @var dailyPasswordRepository|\Drupal\dbtng_example\dailyPasswordRepository
    */
-  protected $repository;
+  protected dailyPasswordRepository $repository;
+
+
 
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): formTableController|static
+  {
     $controller = new static($container->get('daily_password.repository'));
     $controller->setStringTranslation($container->get('string_translation'));
     return $controller;
@@ -28,10 +32,8 @@ class formTableController extends ControllerBase {
 
 
   /**
-   * Construct a new controller.
-   *
-   * @param \Drupal\dbtng_example\dailyPasswordRepository $repository
-   *   The repository service.
+   * Constructor
+   * @param dailyPasswordRepository $repository
    */
   public function __construct(dailyPasswordRepository $repository) {
     $this->repository = $repository;
@@ -42,7 +44,9 @@ class formTableController extends ControllerBase {
    * Render a list of entries in the database.
    * @return array
    */
-  public function formTableContent() {
+  public function formTableContent(): array
+  {
+
     $content = [];
 
     $rows = [];
@@ -89,6 +93,8 @@ class formTableController extends ControllerBase {
 
     // Don't cache this page.
     $content['#cache']['max-age'] = 0;
+
+
 
     return $content;
   }
