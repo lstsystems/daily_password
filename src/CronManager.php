@@ -80,9 +80,9 @@ class CronManager
   public function cron(): void {
     //get configuration last run time stamp
     $getSettingsLastRun = $this->configData->get_run_time();
-    $this->filter();
+
     //check for last run and configure day to run
-    /*if($getSettingsLastRun < strtotime('-1 days')) {
+    if($getSettingsLastRun < strtotime('-1 days')) {
 
       // Run all functions
       $this->filter();
@@ -92,7 +92,7 @@ class CronManager
       $renderCache = $this->cacheBackend->invalidateAll();
       $renderCache->invalidateAll();
 
-    }*/
+    }
   }
 
 }
