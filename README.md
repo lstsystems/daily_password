@@ -1,17 +1,18 @@
 # daily_password
-This is a Drupal module that can be used with Drupal ^8.8, 9 or 10
 
-This module allows to select a username and set it up for automatic password change on a daily, weekly, montly or yearly basis. It also has a blocks that can be place on the site for an admin to see what the password is.
+This Drupal module is compatible with Drupal ^8.8, 9 or 10 versions.
 
-# User Case
-This module came into being do to a need for a third party account access to a restricted part of the site and we didn't want them to have access for more than a day, this module will run and reset the password in one of the four given options then if they need access again at another time they need to contact us to get the new password. Unfortunelly this happen many times a day and we needed to keep generating new passwords and resetting them manually until this module that is.
+## User Case
 
-# Usage
+This module was developed to address the need for granting third-party account access to a restricted part of the site for a limited duration, usually one day. The module automates the process of resetting passwords based on the chosen time interval. If access is required at a different time, users need to contact the administrator for a new password. This module eliminates the need for manual password generation and resetting, which was previously time-consuming and labor-intensive.
+
+## Usage
+
 1. Install and enable the module.
-2. Go to the settings page and remove the default sample data.
-3. Add your user account or multiple accounts
-5. Place the included block in a part of your site you want and restrict it only to those allowed to grant access to the configured accounts.
+2. Access the settings page and remove the default sample data.
+3. Add user account(s) that require automated password changes.
+4. Place the included block on the desired part of your site and restrict access only to authorized users who are allowed to grant access to the configured accounts.
 
+## Other features
 
-
-
+The module includes the ability to send the password to an endpoint as JSON data. The expected response from the endpoint is a status code of 200. Please note that the password is sent in plain text, so it is recommended to use HTTPS for secure transmission. Originally, the module was designed to send passwords only within the same backend network using PHP, and not over the internet.
