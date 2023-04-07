@@ -6,7 +6,7 @@ namespace Drupal\daily_password\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\daily_password\dailyPasswordRepository;
+use Drupal\daily_password\DailyPasswordRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Messenger\MessengerTrait;
@@ -24,9 +24,9 @@ class deleteForm extends FormBase {
 
 
   /**
-   * @var dailyPasswordRepository
+   * @var DailyPasswordRepository
    */
-  private dailyPasswordRepository $repository;
+  private DailyPasswordRepository $repository;
 
   /**
    *
@@ -48,10 +48,10 @@ class deleteForm extends FormBase {
 
 
   /**
-   * @param dailyPasswordRepository $repository
+   * @param DailyPasswordRepository $repository
    * @param AccountProxyInterface $current_user
    */
-  public function __construct(dailyPasswordRepository $repository, AccountProxyInterface $current_user) {
+  public function __construct(DailyPasswordRepository $repository, AccountProxyInterface $current_user) {
     $this->repository = $repository;
     $this->currentUser = $current_user;
   }

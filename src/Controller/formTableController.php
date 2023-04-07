@@ -67,6 +67,10 @@ class formTableController extends ControllerBase {
         'title' => $this->t('Edit'),
         'url' => Url::fromRoute('daily_password.edit_form', ['edit' => $fid]),
       ];
+      $links['test'] = [
+        'title' => $this->t('Test'),
+        'url' => Url::fromRoute('daily_password.test_form', ['formId' => $fid]),
+      ];
       $links['delete'] = [
         'title' => $this->t('Delete'),
         'url' => Url::fromRoute('daily_password.delete_form', ['delete' => $fid]),

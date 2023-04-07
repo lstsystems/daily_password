@@ -7,7 +7,7 @@ use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 
-class dailyPasswordRepository {
+class DailyPasswordRepository {
 
   use MessengerTrait;
   use StringTranslationTrait;

@@ -4,7 +4,7 @@ namespace Drupal\daily_password\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\daily_password\dailyPasswordRepository;
+use Drupal\daily_password\DailyPasswordRepository;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Site\Settings;
