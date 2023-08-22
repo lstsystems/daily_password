@@ -140,7 +140,50 @@ class PasswordManager
 
             $httpClient = $this->httpClientFactory->fromOptions();
 
-            try {
+            // new version
+            $maxRetries = 3;
+            $retryCount = 0;
+            $delayInSeconds = 300;
+            // setup to retry 3 times on failure
+            while($retryCount < $maxRetries) {
+                try {
+
+                    $response = $httpClient->post($url, [
+                        'headers' => $headers,
+                        'json' => $json,
+                    ]);
+
+
+                    // Check for successful response.
+                    if ($response->getStatusCode() == 200) {
+                        // Process response.
+                        $responseBody = json_decode($response->getBody(), TRUE);
+                        // log it
+                        $this->logger->get('daily_password')->info(
+                            "Post request fulfilled with return code 200 and message '{$responseBody}' - For users: '{$users}'"
+                        );
+                        break;
+                    }
+
+
+                } catch (RequestException $error) {
+                    // Log the error
+                    $this->logger->get('daily_password')->error('Encountered an HTTP POST error on attempt ' . ($retryCount + 1) . ': ' . $error);
+
+                    // Increment the retry count
+                    $retryCount++;
+                    // Add a delay before retrying (optional)
+                    // You can adjust the delay to your needs.
+                    sleep($delayInSeconds);
+                }
+            }
+            if ($retryCount === $maxRetries) {
+                // Log a final error message indicating that all retries failed.
+                $this->logger->get('daily_password')->error('All retries failed. Maximum retry count reached.');
+            }
+
+            // old version kept for now
+            /*try {
 
                 $response = $httpClient->post($url, [
                     'headers' => $headers,
@@ -162,7 +205,7 @@ class PasswordManager
             } catch (RequestException $error) {
                 // Log the error
                 $this->logger->get('daily_password')->error('Encountered an HTTP POST error: ' . $error);
-            }
+            }*/
 
         }
 
