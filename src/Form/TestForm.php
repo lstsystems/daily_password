@@ -191,13 +191,13 @@ class TestForm extends FormBase
         ];
 
 
-        $form['test']['jsonkey'] = [
+        /*$form['test']['jsonkey'] = [
             '#type' => 'textfield',
             '#title' => $this->t('API JSON payload key'),
             '#size' => 255,
             '#disabled' => TRUE,
             '#default_value' => $jsonkey,
-        ];
+        ];*/
 
         $form['actions'] = [
             '#type' => 'actions',

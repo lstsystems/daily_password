@@ -142,12 +142,12 @@ class addForm implements FormInterface, ContainerInjectionInterface {
       ];
 
 
-      $form['remote']['jsonkey'] = [
+      /*$form['remote']['jsonkey'] = [
           '#type' => 'textfield',
           '#title' => $this->t('API JSON payload key'),
           '#size' => 255,
           '#description' => $this->t('Please specify the JSON key to be used for the endpoint. If no key is provided, the default key "password" will be used.'),
-      ];
+      ];*/
 
 
       $form['actions'] = [

@@ -97,93 +97,24 @@ class PasswordManager
         $query->execute();
     }
 
-    /**
-     * Evaluate if a post request most be made and send the data
-     * @param $pid
-     * @param $password
+    /***
+     * Sends the post request to end point
+     * @param $url
+     * @param $headers
+     * @param $json
+     * @param $user
      * @return void
      */
+    private function performHttpPost($url, $headers, $json, $user) {
+        $httpClient = $this->httpClientFactory->fromOptions();
 
-    private function performPostRequest($pid, $password)
-    {
-
-        $query = $this->connection->select('daily_password', 'n')
-            ->fields('n', ['pid', 'usernames', 'frequency', 'url', 'header', 'token', 'jsonkey', 'send'])
-            ->condition('n.pid', $pid)
-            ->execute()
-            ->fetchAll();
-
-        // check that query, and url ar not empty and send is set to 1 which is active
-        if (!empty($query) && $query[0]->send === '1' && !empty($query[0]->url)) {
-
-            $users = $query[0]->usernames;
-            $url = $query[0]->url;
-            $header = (!empty($query[0]->header)) ? $query[0]->header : 'x-api-token';
-            $token = $query[0]->token;
-            $jsonkey = (!empty($query[0]->jsonkey)) ? $query[0]->jsonkey : 'password';
-
-
-            // Create an array to hold the headers
-            $headers = [
-                'Content-Type' => 'application/json',
-            ];
-
-            // Add the 'x-api-token' header only if $token is not empty
-            if (!empty($token)) {
-                $headers[$header] = $token;
-            }
-
-            // build the json object
-            $json = [
-                $jsonkey => $password,
-            ];
-
-            $httpClient = $this->httpClientFactory->fromOptions();
-
-            // new version
-            $maxRetries = 3;
-            $retryCount = 0;
-            $delayInSeconds = 300;
-            // setup to retry 3 times on failure
-            while($retryCount < $maxRetries) {
-                try {
-
-                    $response = $httpClient->post($url, [
-                        'headers' => $headers,
-                        'json' => $json,
-                    ]);
-
-
-                    // Check for successful response.
-                    if ($response->getStatusCode() == 200) {
-                        // Process response.
-                        $responseBody = json_decode($response->getBody(), TRUE);
-                        // log it
-                        $this->logger->get('daily_password')->info(
-                            "Post request fulfilled with return code 200 and message '{$responseBody}' - For users: '{$users}'"
-                        );
-                        break;
-                    }
-
-
-                } catch (RequestException $error) {
-                    // Log the error
-                    $this->logger->get('daily_password')->error('Encountered an HTTP POST error on attempt ' . ($retryCount + 1) . ': ' . $error);
-
-                    // Increment the retry count
-                    $retryCount++;
-                    // Add a delay before retrying (optional)
-                    // You can adjust the delay to your needs.
-                    sleep($delayInSeconds);
-                }
-            }
-            if ($retryCount === $maxRetries) {
-                // Log a final error message indicating that all retries failed.
-                $this->logger->get('daily_password')->error('All retries failed. Maximum retry count reached.');
-            }
-
-            // old version kept for now
-            /*try {
+        // new version
+        $maxRetries = 3;
+        $retryCount = 0;
+        $delayInSeconds = 300;
+        // setup to retry 3 times on failure
+        while($retryCount < $maxRetries) {
+            try {
 
                 $response = $httpClient->post($url, [
                     'headers' => $headers,
@@ -197,15 +128,92 @@ class PasswordManager
                     $responseBody = json_decode($response->getBody(), TRUE);
                     // log it
                     $this->logger->get('daily_password')->info(
-                        "Post request fulfilled with return code 200 and message '{$responseBody}' - For users: '{$users}'"
+                        "Post request fulfilled with return code 200 and message '{$responseBody}' - For user: '{$user}'"
                     );
+                    break;
                 }
 
 
             } catch (RequestException $error) {
                 // Log the error
-                $this->logger->get('daily_password')->error('Encountered an HTTP POST error: ' . $error);
-            }*/
+                $this->logger->get('daily_password')->error($user . ': Encountered an HTTP POST error on attempt ' . ($retryCount + 1) . ': ' . $error);
+
+                // Increment the retry count
+                $retryCount++;
+                // Add a delay before retrying (optional)
+                // You can adjust the delay to your needs.
+                sleep($delayInSeconds);
+            }
+        }
+        if ($retryCount === $maxRetries) {
+            // Log a final error message indicating that all retries failed.
+            $this->logger->get('daily_password')->error('All retries for user' . $user . ' failed. Maximum retry count reached.');
+        }
+    }
+
+    /**
+     * Convert comma separated string into an array of strings
+     * @param $inputString
+     * @return array
+     */
+    private function commaSeparatedStringToArray($inputString): array
+    {
+        // split at the comma into an array
+        $stringsArray = explode(',', $inputString);
+        // Trim all usernames of any white space
+        $trimmedArray = array_map('trim', $stringsArray);
+        // remove any empty element and return string array
+        return array_filter($trimmedArray);
+    }
+
+    /**
+     * Evaluate if a post request most be made and send the data
+     * @param $pid
+     * @param $password
+     * @return void
+     */
+    private function initiatePostRequest($pid, $password)
+    {
+
+        $query = $this->connection->select('daily_password', 'n')
+            ->fields('n', ['pid', 'usernames', 'frequency', 'url', 'header', 'token', 'send'])
+            ->condition('n.pid', $pid)
+            ->execute()
+            ->fetchAll();
+
+        // check that query, and url ar not empty and send is set to 1 which is active
+        if (!empty($query) && $query[0]->send === '1' && !empty($query[0]->url)) {
+            // users comes as a coma separated string
+            $usersString = $query[0]->usernames;
+            // convert it to an array
+            $users = $this->commaSeparatedStringToArray($usersString);
+            // set url to endpoint url
+            $url = $query[0]->url;
+            // set header
+            $header = (!empty($query[0]->header)) ? $query[0]->header : 'x-api-token';
+            // set token
+            $token = $query[0]->token;
+
+
+            foreach ($users as $user) {
+                // Create an array to hold the headers
+                $headers = [
+                    'Content-Type' => 'application/json',
+                ];
+
+                // Add the 'x-api-token' header only if $token is not empty
+                if (!empty($token)) {
+                    $headers[$header] = $token;
+                }
+
+                // build the json object
+                $json = [
+                    "username" => $user,
+                    "password" => $password,
+                ];
+
+                $this->performHttpPost($url, $headers, $json, $user);
+            }
 
         }
 
@@ -235,7 +243,7 @@ class PasswordManager
         $this->databasePasswordStorage($pid, $password['secured']);
 
         // send password to an external endpoint
-        $this->performPostRequest($pid, $password['plain']);
+        $this->initiatePostRequest($pid, $password['plain']);
 
     }
 
