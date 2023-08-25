@@ -202,7 +202,7 @@ class addForm implements FormInterface, ContainerInjectionInterface {
         'url' => $form_state->getValue('url'),
         'header' => $form_state->getValue('header'),
         'token' => $form_state->getValue('token'),
-        'jsonkey' => $form_state->getValue('jsonkey'),
+        'jsonkey' => $form_state->getValue('jsonkey') ?? '',
     ];
     $return = $this->repository->insert($entry);
     $form_state->setRedirect('daily_password.form_table');

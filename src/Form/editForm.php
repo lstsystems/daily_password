@@ -229,7 +229,7 @@ class editForm extends FormBase {
         'url' => $form_state->getValue('url'),
         'header' => $form_state->getValue('header'),
         'token' => $form_state->getValue('token'),
-        'jsonkey' => $form_state->getValue('jsonkey'),
+        'jsonkey' => $form_state->getValue('jsonkey') ?? '',
     ];
     $count = $this->repository->update($entry);
     $form_state->setRedirect('daily_password.form_table');
