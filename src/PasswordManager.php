@@ -136,8 +136,8 @@ class PasswordManager
 
             } catch (RequestException $error) {
                 // Log the error
-                $this->logger->get('daily_password')->error($user . ': Encountered an HTTP POST error on attempt ' . ($retryCount + 1) . ': ' . $error);
-
+                //$this->logger->get('daily_password')->error($user . ': Encountered an HTTP POST error on attempt ' . ($retryCount + 1) . ': ' . $error);
+                $this->logger->get('daily_password')->error($user . ': Encountered an HTTP POST error on attempt ' . ($retryCount + 1) . ': ' . $error->getResponse()->getBody()->getContents());
                 // Increment the retry count
                 $retryCount++;
                 // Add a delay before retrying (optional)
