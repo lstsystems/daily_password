@@ -108,47 +108,32 @@ class PasswordManager
     private function performHttpPost($url, $headers, $json, $user) {
         $httpClient = $this->httpClientFactory->fromOptions();
 
-        // new version
-        $maxRetries = 3;
-        $retryCount = 0;
-        $delayInSeconds = 300;
-        // setup to retry 3 times on failure
-        while($retryCount < $maxRetries) {
-            try {
+      try {
 
-                $response = $httpClient->post($url, [
-                    'headers' => $headers,
-                    'json' => $json,
-                ]);
+        $response = $httpClient->post($url, [
+          'headers' => $headers,
+          'json' => $json,
+        ]);
 
-
-                // Check for successful response.
-                if ($response->getStatusCode() == 200) {
-                    // Process response.
-                    $responseBody = json_decode($response->getBody(), TRUE);
-                    // log it
-                    $this->logger->get('daily_password')->info(
-                        "Post request fulfilled with return code 200 and message '{$responseBody}' - For user: '{$user}'"
-                    );
-                    break;
-                }
-
-
-            } catch (RequestException $error) {
-                // Log the error
-                //$this->logger->get('daily_password')->error($user . ': Encountered an HTTP POST error on attempt ' . ($retryCount + 1) . ': ' . $error);
-                $this->logger->get('daily_password')->error($user . ': Encountered an HTTP POST error on attempt ' . ($retryCount + 1) . ': ' . $error->getResponse()->getBody()->getContents());
-                // Increment the retry count
-                $retryCount++;
-                // Add a delay before retrying (optional)
-                // You can adjust the delay to your needs.
-                sleep($delayInSeconds);
-            }
+        // Check for successful response.
+        if ($response->getStatusCode() == 200) {
+          // Process response.
+          $responseBody = json_decode($response->getBody(), TRUE);
+          // log it
+          $this->logger->get('daily_password')->info(
+            "Post request fulfilled with return code 200 and message '{$responseBody}' - For user: '{$user}'"
+          );
         }
-        if ($retryCount === $maxRetries) {
-            // Log a final error message indicating that all retries failed.
-            $this->logger->get('daily_password')->error('All retries for user' . $user . ' failed. Maximum retry count reached.');
+
+      } catch (RequestException $error) {
+        // Log the error
+        //$this->logger->get('daily_password')->error($user . ': Encountered an HTTP POST error on attempt ' . ($retryCount + 1) . ': ' . $error);
+        if ($error->hasResponse()) {
+          $this->logger->get('daily_password')->error($user . ': Encountered an HTTP POST error on attempt ' . ': ' . $error->getResponse()->getBody()->getContents());
+        } else {
+          $this->logger->get('daily_password')->error($user . ': Encountered an HTTP POST error on attempt ' . ': ' . $error->getMessage());
         }
+      }
     }
 
     /**
