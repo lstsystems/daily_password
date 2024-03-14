@@ -1,8 +1,8 @@
 {
-  "name": "drupal/daily_password",
+  "name": "lstsystems/daily_password",
   "type": "drupal-custom-module",
   "description": "Allows to changed the user names password daily.",
-  "keywords": ["Drupal", "daily_password"],
+  "keywords": ["Drupal", "daily_password", "lstsystems"],
   "license": "GPL-2.0+",
   "homepage": "https://github.com/lstsystems/daily_password",
   "minimum-stability": "dev",
