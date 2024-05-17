@@ -25,6 +25,8 @@ class PasswordManager
     private ClientFactory $httpClientFactory;
     private $user;
 
+    private bool $httpError = false;
+
     /**
      * PasswordManager constructor.
      *
@@ -127,12 +129,14 @@ class PasswordManager
 
       } catch (RequestException $error) {
         // Log the error
-        //$this->logger->get('daily_password')->error($user . ': Encountered an HTTP POST error on attempt ' . ($retryCount + 1) . ': ' . $error);
         if ($error->hasResponse()) {
           $this->logger->get('daily_password')->error($user . ': Encountered an HTTP POST error on attempt ' . ': ' . $error->getResponse()->getBody()->getContents());
         } else {
           $this->logger->get('daily_password')->error($user . ': Encountered an HTTP POST error on attempt ' . ': ' . $error->getMessage());
         }
+
+        // Set httpError to true to prevent password update in database
+        $this->httpError = true;
       }
     }
 
@@ -205,32 +209,46 @@ class PasswordManager
 
     }
 
-
-    /**
-     * run set password for user and database
-     * @param $userNames
-     * @param $pid
-     */
-    public function passwordSetter($userNames, $pid)
-    {
+  public function getHttpErrorStatus()
+  {
+    return $this->httpError;
+  }
 
 
-        //trim and store as array for multiple usernames to pass into the function
-        $userNames = array_map('trim', explode(',', $userNames));
+  /**
+   * run set password for user and database
+   * @param $userNames
+   * @param $pid
+   */
+  public function passwordSetter($userNames, $pid)
+  {
 
-        //Get password from generator
-        $password = $this->passwordGenerator->securedPassword();
 
-        //run password change function for users
-        $this->changeUserPassword($userNames, $password['plain']);
+      //trim and store as array for multiple usernames to pass into the function
+      $userNames = array_map('trim', explode(',', $userNames));
 
-        //store password in database
-        $this->databasePasswordStorage($pid, $password['secured']);
+      //Get password from generator
+      $password = $this->passwordGenerator->securedPassword();
 
-        // send password to an external endpoint
-        $this->initiatePostRequest($pid, $password['plain']);
+      // send password to an external endpoint first in case of failure
+      $this->initiatePostRequest($pid, $password['plain']);
 
-    }
+      // check if there was an error
+      if ($this->httpError) {
+          // log the error
+          $this->logger->get('daily_password')->error('HTTP POST request failed, password not updated');
+          return;
+      }
+
+      //run password change function for users
+      $this->changeUserPassword($userNames, $password['plain']);
+
+      //store password in database
+      $this->databasePasswordStorage($pid, $password['secured']);
+
+
+
+  }
 
 
 }

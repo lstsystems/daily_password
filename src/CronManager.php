@@ -33,8 +33,6 @@ class CronManager
 
     $midnight = strtotime('today midnight');
 
-
-
     // Call usernames from database and store the object
     $tableObjects =  $this->userManager->getUserNames();
 
@@ -71,8 +69,16 @@ class CronManager
 
     }
 
+    //TODO: Remove all commented code
     //Set run time stamp on config file after all functions have run
-    $this->configData->set_run_time($midnight);
+    //$this->configData->set_run_time($midnight);
+
+    // Check if httpError is false before setting run time
+    if (!$this->passwordManager->getHttpErrorStatus()) {
+      // Set run time stamp on config file after all functions have run
+      $this->configData->set_run_time($midnight);
+    }
+
   }
 
   /**
