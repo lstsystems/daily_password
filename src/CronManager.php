@@ -33,9 +33,7 @@ class CronManager
 
     $midnight = strtotime('today midnight');
 
-    //Set run time stamp on config file
-    //\Drupal::getContainer()->get('config.factory')->getEditable('daily_password.settings')->set('last_run', $midnight)->save();
-    $this->configData->set_run_time($midnight);
+
 
     // Call usernames from database and store the object
     $tableObjects =  $this->userManager->getUserNames();
@@ -72,6 +70,9 @@ class CronManager
       }
 
     }
+
+    //Set run time stamp on config file after all functions have run
+    $this->configData->set_run_time($midnight);
   }
 
   /**
