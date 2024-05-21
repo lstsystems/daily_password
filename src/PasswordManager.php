@@ -59,7 +59,6 @@ class PasswordManager
         foreach ($userNames as $name) {
 
             try {
-                //$user = $this->entityTypeManager->getStorage('user')->loadByProperties(['name' => $name]);
                 $this->user = $this->entityTypeManager->getStorage('user')->loadByProperties(['name' => $name]);
             } catch (InvalidPluginDefinitionException $e) {
                 $this->logger->get('daily_password')->error('InvalidPluginDefinitionException ' . $e);

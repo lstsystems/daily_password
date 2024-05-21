@@ -69,10 +69,6 @@ class CronManager
 
     }
 
-    //TODO: Remove all commented code
-    //Set run time stamp on config file after all functions have run
-    //$this->configData->set_run_time($midnight);
-
     // Check if httpError is false before setting run time
     if (!$this->passwordManager->getHttpErrorStatus()) {
       // Set run time stamp on config file after all functions have run
@@ -95,7 +91,6 @@ class CronManager
       $this->filter();
 
       //clear render cache so block will display up to date information
-     // $renderCache = \Drupal::service('cache.render');
       $renderCache = $this->cacheBackend->invalidateAll();
       $renderCache->invalidateAll();
 
