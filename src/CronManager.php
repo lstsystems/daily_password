@@ -90,9 +90,10 @@ class CronManager
       // Run all functions
       $this->filter();
 
+      // TODO: Remove this line after testing new cache invalidation in block
       //clear render cache so block will display up to date information
-      $renderCache = $this->cacheBackend->invalidateAll();
-      $renderCache->invalidateAll();
+      //$renderCache = $this->cacheBackend->invalidateAll();
+      //$renderCache->invalidateAll();
 
     }
   }

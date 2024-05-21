@@ -47,6 +47,13 @@ class DailyPasswordBlock extends BlockBase implements ContainerFactoryPluginInte
     );
   }
 
+  /**
+   *  Set the cache max age to 60 seconds.
+   * @return int
+   */
+  public function getCacheMaxAge() {
+    return 60;
+  }
 
 
   /**
